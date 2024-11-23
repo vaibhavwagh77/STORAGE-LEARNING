@@ -1,0 +1,56 @@
+https://etherpad.opendev.org/p/dhpcsa112024
+
+
+RAID1
+mdadm --detail --scan /dev/md1 >> /etc/mdadm/mdadm.conf 
+update-initramfs -u
+mkfs.ext4 /dev/md1
+#for mount and add test file
+mount /dev/md1 /mnt/raid_1/ 
+
+
+#steps after remove HDD and remount
+mdadm --stop /dev/md1
+mdadm --assemble /dev/md1
+mdadm --detail /dev/md1
+
+#Steps to add new HDD
+mdadm --add /dev/md1 /dev/sdc
+
+
+
+##########Extra History#####
+
+  206  mdadm --create --verbose /dev/md1 --level=1 --raid-devices=2 /dev/sdb /dev/sdc
+  207  mdadm --detail /dev/md1
+  208  mdadm --detail --scan /dev/md1
+  209  mdadm --detail --scan /dev/md1 >> /etc/mdadm/mdadm.conf 
+  210  cat /etc/mdadm/mdadm.conf 
+  211  reboot
+  212  clear
+  213  mdadm --create --verbose /dev/md1 --level=1 --raid-devices=2 /dev/sdb /dev/sdc
+  214  mdadm --detail --scan /dev/md1 >> /etc/mdadm/mdadm.conf 
+  215  cat /etc/mdadm/mdadm.conf 
+  216  nano /etc/mdadm/mdadm.conf 
+  217  mdadm --detail --scan /dev/md1 >> /etc/mdadm/mdadm.conf 
+  218  cat /etc/mdadm/mdadm.conf 
+  219  update-initramfs -u
+  220  reboot
+  221  clear
+  222  lsblk 
+  223  mdadm --create --verbose /dev/md1 --level=1 --raid-devices=2 /dev/sdb /dev/sdc
+  224  clear
+  225  lsblk 
+  226  clear
+  227  nano /etc/mdadm/mdadm.conf 
+  228  clear
+  229  mdadm --detail --scan /dev/md1 >> /etc/mdadm/mdadm.conf 
+  230  cat /etc/mdadm/mdadm.conf 
+  231  clear
+  232  update-initramfs -u
+  233  lsblk 
+  234  mkfs.ext4 /dev/md1
+  235  mkdimdadm --assemble /dev/md1r /mnt/raid_1
+  236  mount /dev/md1 /mnt/raid_1/
+  237  history
+  
