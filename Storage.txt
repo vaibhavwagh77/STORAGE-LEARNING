@@ -1,0 +1,157 @@
+rhttps://etherpad.opendev.org/p/dhpcsa112024
+http://192.168.82.67/SBM/
+
+
+Assignment:
+1. Create Raid 5 with 3 active HDD and 2 spare drive very hot spare with disk removal 
+2. Create Raid 10 using 4 HDD
+
+
+
+
+RAID1
+mdadm --detail --scan /dev/md1 >> /etc/mdadm/mdadm.conf 
+update-initramfs -u
+mkfs.ext4 /dev/md1
+#for mount and add test file
+mount /dev/md1 /mnt/raid_1/ 
+
+
+#steps after remove HDD and remount
+mdadm --stop /dev/md1
+mdadm --assemble /dev/md1
+mdadm --detail /dev/md1
+
+#Steps to add new HDD
+mdadm --add /dev/md1 /dev/sdc
+
+
+
+##########Extra History#####
+mdadm --create --verbose /dev/md1 --level=1 --raid-devices=2 /dev/sdb /dev/sdc
+  207  mdadm --detail /dev/md1
+  206  
+  208  mdadm --detail --scan /dev/md1
+  209  mdadm --detail --scan /dev/md1 >> /etc/mdadm/mdadm.conf 
+  210  cat /etc/mdadm/mdadm.conf 
+  211  reboot
+  212  clear
+  213  mdadm --create --verbose /dev/md1 --level=1 --raid-devices=2 /dev/sdb /dev/sdc
+  214  mdadm --detail --scan /dev/md1 >> /etc/mdadm/mdadm.conf 
+  215  cat /etc/mdadm/mdadm.conf 
+  216  nano /etc/mdadm/mdadm.conf 
+  217  mdadm --detail --scan /dev/md1 >> /etc/mdadm/mdadm.conf 
+  218  cat /etc/mdadm/mdadm.conf 
+  219  update-initramfs -u
+  220  reboot
+  221  clear
+  222  lsblk 
+  223  mdadm --create --verbose /dev/md1 --level=1 --raid-devices=2 /dev/sdb /dev/sdc
+  224  clear
+  225  lsblk 
+  226  clear
+  227  nano /etc/mdadm/mdadm.conf 
+  228  clear
+  229  mdadm --detail --scan /dev/md1 >> /etc/mdadm/mdadm.conf 
+  230  cat /etc/mdadm/mdadm.conf 
+  231  clear
+  232  update-initramfs -u
+  233  lsblk 
+  234  mkfs.ext4 /dev/md1
+  235  mkdimdadm --assemble /dev/md1r /mnt/raid_1
+  236  mount /dev/md1 /mnt/raid_1/
+  
+  237  history
+http://192.168.82.67:3131/851515
+  
+  RAID5#
+  #add Three HDD in Virtual Machine
+  #apt-get install mdadm
+  mdadm --create --verbose /dev/md0 --level=5 --raid-devices=3 /dev/sdb /dev/sdc /dev/sdd 
+  mdadm --detail --scan /dev/md1 >> /etc/mdadm/mdadm.conf 
+  mdadm --stop /dev/md0
+  
+  
+    95  apt-get install mdadm
+   96  clear
+   97  #mdadm --create --verbose /dev/md0 --level=5 --raid-devices=3 /dev/sdb /dev/sdc /dev/sdd
+   98  lsblk 
+   99  mdadm --create --verbose /dev/md0 --level=5 --raid-devices=3 /dev/sdb /dev/sdc /dev/sdd
+  100  lsblk 
+  101  mdadm --detail --scan /dev/md0 >> /etc/mdadm/mdadm.conf 
+  102  cat /etc/mdadm/mdadm.conf 
+  103  clear
+  104  update-initramfs -u
+  105  mkfs.ext4 /dev/md0  
+  106  mkdir /mnt/raid_5
+  107  mount /dev/md0 /mnt/raid_5/
+  108  clear
+  109  df -h
+  110  cd /mnt/raid_5/
+  111  nano test.txt
+  112  halt
+  113  clear
+  114  lsblk 
+  115    mdadm --stop /dev/md0
+  116  mdadm --assemble /dev/md0
+  117  mount /dev/md0 /mnt/raid_5/
+  118  cd /mnt/raid_5/
+  119  ls
+  120  cat test.txt 
+  121  clear
+  122  mdadm --detail /dev/md0
+  123  history
+  
+  LVM LAB
+  
+    87  lsblk 
+   88  pvcreate /dev/sdb /dev/sdc
+   89  apt-get install lvm2
+   90  clear
+   91  pvcreate /dev/sdb /dev/sdc
+   92  vgcreate HPCSA /dev/sdb /dev/sdc
+   93  pvs
+   94  vgs
+   95  pvdisplay 
+   96  vgdisplay 
+   97  clear
+   98  lvcreate -n hpcsa_lab --size 1G HPCSA
+   99  lvs
+  100  vgs
+  101  lvcreate -n hpcsa_lab1 --size 1G HPCSA
+  102  lvs
+  103  vgs
+  104  clear
+  105  fdisk /dev/mapper/HPCSA-hpcsa_lab
+  106  fdisk -l
+  107  lvremove -n hpcsa_lab1 
+  108  lvremove -n hpcsa_lab1
+  109  mkfs.ext4 /dev/mapper/HPCSA-hpcsa_lab1
+  110  fdisk -l
+  111  mkdir /mnt/disk-1
+  112  mount /dev/mapper/HPCSA-hpcsa_lab1 /mnt/disk-1/
+  113  clear
+  114  df -h
+  115  lvextend -L +2G /dev/mapper/HPCSA-hpcsa_lab
+  116  lvs
+  117  resize2fs /dev/mapper/HPCSA-hpcsa_lab
+  118  /dev/mapper/HPCSA-hpcsa_lab
+  119* /dev/mapper/HPCSA-hpcsa_lab1
+  120  resize2fs /dev/mapper/HPCSA-hpcsa_lab
+  121  resize2fs /dev/mapper/HPCSA-hpcsa_lab1
+  122  clear
+  123  lvcreate -n hpcsa_lab_3 --size 1G HPCSA
+  124  lvs
+  125  mkfs.ext4 /dev/mapper/HPCSA-hpcsa_lab_3 
+  126  clear
+  127  mkdir /mnt/disk_3
+  128  mount /dev/mapper/HPCSA-hpcsa_lab_3 /mnt/disk_3/
+  129  df -h
+  130  lvextend -L +2G /dev/mapper/HPCSA-hpcsa_lab_3 
+  131  lvs
+  132  df -h
+  133  resize2fs /dev/mapper/HPCSA-hpcsa_lab_3 
+  134  df -h
+  135  history
+  
+  

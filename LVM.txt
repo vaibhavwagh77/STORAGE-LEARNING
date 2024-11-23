@@ -1,0 +1,138 @@
+apt-get install lvm2
+
+
+
+1. Identify the new hard disks:
+
+This is achieved using the `lsblk` command. `lsblk` lists information about all available or the specified block devices. It reads the sysfs filesystem and udev db to gather information.
+
+
+[root@nfs-client ~]# lsblk
+
+
+Here, `sdb` and `sdc` are the new hard disks that you want to add.
+
+2. Create physical volumes:
+
+This is done with `pvcreate`. This initializes physical volume(s) for later use by the Logical Volume Manager (LVM). Each physical volume can be a disk partition, whole disk, meta-device, or loopback file.
+
+
+pvcreate /dev/sdb /dev/sdc
+
+pvdisplay command for view volumes
+3. Create a volume group:
+
+`vgcreate` creates a new volume group named HPCSA on physical volumes /dev/sdb and /dev/sdc.
+
+
+vgcreate HPCSA /dev/sdb /dev/sdc
+
+
+4. Create a logical volume:
+
+`lvcreate` creates a logical volume in a volume group. In this case, it's creating a logical volume named `hpcsa_lab` with a size of 1G in the volume group `HPCSA`.
+
+
+lvcreate -n hpcsa_lab --size 1G HPCSA
+
+
+5. Partition the new logical volume:
+
+`fdisk` is a dialogue-driven command-line utility that creates and manipulates partition tables and partitions on a hard disk.
+
+
+fdisk /dev/mapper/HPCSA-hpcsa_lab
+
+
+Here you're asked to press `n` to create a new partition.
+
+6. Create a filesystem:
+
+`mkfs.ext4` is used to create an ext4 filesystem on the partition.
+
+
+mkfs.ext4 /dev/mapper/HPCSA-hpcsa_lab
+
+
+7. Create a mount point and mount the logical volume:
+
+Create a directory that will serve as the mount point, and then use the `mount` command to mount the logical volume.
+
+
+mkdir lab
+mount /dev/mapper/HPCSA-hpcsa_lab lab
+
+
+8. Extend the logical volume:
+
+`lvextend` allows you to extend the size of a logical volume. Here, you're extending the logical volume `hpcsa_lab` by an additional 2G.
+
+
+lvextend -L +2G /dev/mapper/HPCSA-hpcsa_lab
+
+
+9. Resize the filesystem:
+
+`resizefs` resizes the filesystem on the logical volume to use all of the available space.
+
+
+resize2fs /dev/mapper/HPCSA-hpcsa_lab
+
+
+10. Create a snapshot:
+
+`lvcreate` with `-s` creates a snapshot logical volume, which is a read-only copy of another logical volume.
+
+
+lvcreate -L 1GB -s -n hpcsa_lab_snap /dev/mapper/HPCSA-hpcsa_lab
+
+
+11. Merge the snapshot:
+
+`lvconvert` with `--merge` will merge the snapshot back into its origin volume. If both origin and snapshot volume are not open the merge will start immediately, otherwise, it will be delayed until the origin volume becomes inactive.
+l
+
+lvconvert --merge /dev/mapper/HPCSA-hpcsa_lab_snap
+
+
+Remember to add the disks to `/etc/fstab` if you want them to be mounted automatically at system startup.
+
+
+[root@localhost ~]# lsblk
+NAME            MAJ:MIN RM  SIZE RO TYPE MOUNTPOINT
+sda               8:0    0   20G  0 disk
+â”œâ”€sda1            8:1    0    1G  0 part /boot
+â””â”€sda2            8:2    0   19G  0 part
+  â”œâ”€centos-root 253:0    0   17G  0 lvm  /
+  â””â”€centos-swap 253:1    0    2G  0 lvm  [SWAP]
+sdb               8:16   0   20G  0 disk
+sdc               8:32   0   20G  0 disk
+sdd               8:48   0   20G  0 disk
+sr0              11:0    1  973M  0 rom
+[root@localhost ~]# vgcreate HPCSA /dev/sdb /dev/sdclsblk
+  Physical volume "/dev/sdb" successfully created.
+  Physical volume "/dev/sdc" successfully created.
+  Volume group "HPCSA" successfully created
+[root@localhost ~]# vgs
+  VG     #PV #LV #SN Attr   VSize   VFree
+  HPCSA    2   0   0 wz--n-  39.99g 39.99g
+  centos   1   2   0 wz--n- <19.00g     0
+[root@localhost ~]# vgextend HPCSA /dev/sdd
+  Physical volume "/dev/sdd" successfully created.
+  Volume group "HPCSA" successfully extended
+[root@localhost ~]# vgs
+  VG     #PV #LV #SN Attr   VSize   VFree
+  HPCSA    3   0   0 wz--n- <59.99g <59.99g
+  centos   1   2   0 wz--n- <19.00g      0
+[root@localhost ~]#
+
+
+[root@localhost ~]# lvconvert --merge /dev/mapper/HPCSA-hpcsa_lab
+HPCSA-hpcsa_lab           HPCSA-hpcsa_lab_snap
+HPCSA-hpcsa_lab-real      HPCSA-hpcsa_lab_snap-cow
+[root@localhost ~]# lvconvert --merge /dev/mapper/HPCSA-hpcsa_lab
+HPCSA-hpcsa_lab           HPCSA-hpcsa_lab_snap
+HPCSA-hpcsa_lab-real      HPCSA-hpcsa_lab_snap-cow
+[root@localhost ~]# lvconvert --merge /dev/mapper/HPCSA-hpcsa_lab_snap
+  Merging of volume HPCSA/hpcsa_lab_snap started.
+  HPCSA/hpcsa_lab: Merged: 100.00%
