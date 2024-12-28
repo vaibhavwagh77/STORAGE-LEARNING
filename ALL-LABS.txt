@@ -1,0 +1,1075 @@
+mkfs.ext4 /dev/nvme0n2
+Windows password:- Acts@Batch#2024
+Ubuntu password:- dhpcsa
+
+
+https://etherpad.opendev.org/p/dhpcsa112024
+
+
+
+Assignment:
+1. Create Raid 5 with 3 active HDD and 2 spare drive very hot spare with disk removal 
+2. Create Raid 10 using 4 HDD
+
+
+
+
+RAID1
+mdadm --detail --scan /dev/md1 >> /etc/mdadm/mdadm.conf 
+update-initramfs -u
+mkfs.ext4 /dev/md1
+#for mount and add test file
+mount /dev/md1 /mnt/raid_1/ 
+
+
+#steps after remove HDD and remount
+mdadm --stop /dev/md1
+mdadm --assemble /dev/md1
+mdadm --detail /dev/md1
+
+#Steps to add new HDD
+mdadm --add /dev/md1 /dev/sdc
+
+
+
+##########Extra History#####
+mdadm --create --verbose /dev/md1 --level=1 --raid-devices=2 /dev/sdb /dev/sdc
+  207  mdadm --detail /dev/md1
+  206  
+  208  mdadm --detail --scan /dev/md1
+  209  mdadm --detail --scan /dev/md1 >> /etc/mdadm/mdadm.conf 
+  210  cat /etc/mdadm/mdadm.conf 
+  211  reboot
+  212  clear
+  213  mdadm --create --verbose /dev/md1 --level=1 --raid-devices=2 /dev/sdb /dev/sdc
+  214  mdadm --detail --scan /dev/md1 >> /etc/mdadm/mdadm.conf 
+  215  cat /etc/mdadm/mdadm.conf 
+  216  nano /etc/mdadm/mdadm.conf 
+  217  mdadm --detail --scan /dev/md1 >> /etc/mdadm/mdadm.conf 
+  218  cat /etc/mdadm/mdadm.conf https://etherpad.opendev.org/p/dhpcsa112024
+  219  update-initramfs -u
+  220  reboot
+  221  clear
+  222  lsblk 
+  223  mdadm --create --verbose /dev/md1 --level=1 --raid-devices=2 /dev/sdb /dev/sdc
+  224  clear
+  225  lsblk 
+  226  clear
+  227  nano /etc/mdadm/mdadm.conf 
+  228  clear
+  229  mdadm --detail --scan /dev/md1 >> /etc/mdadm/mdadm.conf 
+  230  cat /etc/mdadm/mdadm.conf 
+  231  clear
+  232  update-initramfs -u
+  233  lsblk 
+  234  mkfs.ext4 /dev/md1
+  235  mkdimdadm --assemble /dev/md1r /mnt/raid_1
+  236  mount /dev/md1 /mnt/raid_1/
+  
+  237  history
+http://192.168.82.67:3131/851515https://etherpad.opendev.org/p/dhpcsa112024
+  
+  RAID5#
+  #add Three HDD in Virtual Machine
+  #apt-get install mdadm
+  mdadm --create --verbose /dev/md0 --level=5 --raid-devices=3 /dev/sdb /dev/sdc /dev/sdd 
+  mdadm --detail --scan /dev/md1 >> /etc/mdadm/mdadm.conf 
+  mdadm --stop /dev/md0
+  
+  
+    95  apt-get install mdadm
+   96  clear
+   97  #mdadm --create --verbose /dev/md0 --level=5 --raid-devices=3 /dev/sdb /dev/sdc /dev/sdd
+   98  lsblk 
+   99  mdadm --create --verbose /dev/md0 --level=5 --raid-devices=3 /dev/sdb /dev/sdc /dev/sdd
+  100  lsblk 
+  101  mdadm --detail --scan /dev/md0 >> /etc/mdadm/mdadm.conf 
+  102  cat /etc/mdadm/mdadm.conf 
+  103  clear
+  104  update-initramfs -u
+  105  mkfs.ext4 /dev/md0  
+  106  mkdir /mnt/raid_5
+  107  mount /dev/md0 /mnt/raid_5/
+  108  clear
+  109  df -h
+  110  cd /mnt/raid_5/
+  111  nano test.txt
+  112  halt
+  113  clear
+  114  lsblk 
+  115    mdadm --stop /dev/md0
+  116  mdadm --assemble /dev/md0
+  117  mount /dev/md0 /mnt/raid_5/
+  118  cd /mnt/raid_5/
+  119  ls
+  120  cat test.txt 
+  121  clear
+  122  mdadm --detail /dev/md0
+  123  history
+  
+  LVM LAB
+  
+    87  lsblk 
+   88  pvcreate /dev/sdb /dev/sdc
+   89  apt-get install lvm2
+   90  clear
+   91  pvcreate /dev/sdb /dev/sdc
+   92  vgcreate HPCSA /dev/sdb /dev/sdc
+   93  pvs
+   94  vgs
+   95  pvdisplay 
+   96  vgdisplay 
+   97  clear
+   98  
+   99  lvs
+  100  vgs
+  101  lvcreate -n hpcsa_lab1 --size 1G HPCSA
+  102  lvs
+  103  vgs
+  104  clear
+  105  fdisk /dev/mapper/HPCSA-hpcsa_lab
+  106  fdisk -l
+  107  lvremove -n hpcsa_lab1 
+  108  lvremove -n hpcsa_lab1
+  109  mkfs.ext4 /dev/mapper/HPCSA-hpcsa_lab1
+  110  fdisk -l
+  111  mkdir /mnt/disk-1
+  112  mount /dev/mapper/HPCSA-hpcsa_lab1 /mnt/disk-1/
+  113  clear
+  114  df -h
+  115  lvextend -L +2G /dev/mapper/HPCSA-hpcsa_lab
+  116  lvs
+  117  lvsresize2fs /dev/mapper/HPCSA-hpcsa_lab
+  118  /dev/mapper/HPCSA-hpcsa_lab
+  119* /dev/mapper/HPCSA-hpcsa_lab1
+  120  resize2fs /dev/mapper/HPCSA-hpcsa_lab
+  121  resize2fs /dev/mapper/HPCSA-hpcsa_lab1
+  122  clear
+  123  lvcreate -n hpcsa_lab_3 --size 1G HPCSA
+  124  lvs
+  125  mkfs.ext4 /dev/mapper/HPCSA-hpcsa_lab_3 
+  126  clear
+  127  mkdir /mnt/disk_3
+  128  mount /dev/mapper/HPCSA-hpcsa_lab_3 /mnt/disk_3/
+  129  df -h
+  
+  130  lvextend -L +2G /dev/mapper/HPCSA-hpcsa_lab_3 
+  131  lvs
+  132  df -h
+  133  resize2fs /dev/mapper/HPCSA-hpcsa_lab_3 
+  134  df -h
+  135  history
+  
+apt-get install open-iscsi
+systemctl start iscsid
+telnet 192.168.82.150 3260
+iscsiadm -m discovery -t sendtargets -p 192.168.82.150:3260n-S2680G:/home/dhpcsa# #systemctl status iscsid
+root@dhpcsa-Veriton-S2680G:/home/dhpcsa# #telnet 19
+
+  root@dhpcsa-Veriton-S2680G:/home/dhpcsa# iscsiadm -m discovery -t sendtargets -p 192.168.82.150:3260 --login
+192.168.82.150:3260,-1 iqn.2005-10.org.freenas.ctl:disk01
+Logging in to [iface: default, target: iqn.2005-10.org.freenas.ctl:disk01, portal: 192.168.82.150,3260] (multiple)
+Login to [iface: default, target: iqn.2005-10.org.freenas.ctl:disk01, portal: 192.168.82.150,3260] successful.
+root@dhpcsa-Veriton-S2680G:/home/dhpcsa# iscsiadm -m discovery -t sendtargets -p 192.168.82.150:3260 --login
+192.168.82.150:3260,-1 iqn.2005-10.org.freenas.ctl:disk01
+Logging in to [iface: default, target: iqn.2005-10.org.freenas.ctl:disk01, portal: 192.168.82.150,3260] (multiple)
+Login to [iface: default, target: iqn.2005-10.org.freenas.ctl:disk01, portal: 192.168.82.150,3260] successful.
+
+http://192.168.82.67:8080/stream
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+iscsi server configuration on debian12
+------------------------------
+*****On iscsi-client or your desktop*****
+-------------------------
+#apt-get install open-iscsi
+# cd /etc/iscsi
+# vi initiatorname.iscsi                        >> # check your initiator name 
+
+*****On iscsi-server - Virtual Machine*****
+-------------------------
+ apt-get install lvm2 targetcli-fb
+(Add one Hard disk sdb )
+# lsblk  
+# pvcrev/sdb
+# vgcreate vg_iscsi /dev/sdb
+# lvcreate -n lv_iscsi-disk-01 -L 1G vg_iscsi
+# lvs                               --> show partitions
+# targetcli
+/> cd backstores/block
+> create block1 /dev/mapper/vg_iscsi-lv_iscsi--disk--01
+> cd /iscsi
+> create iqn.2024-12.cdac.acts.hpcsa.sbm:disk1
+> cd iqn.2024-12.cdac.acts.hpcsa.sbm:disk1/tpg1/acls
+> create <system iqn>:306631cea220
+> cd ..
+> cd iqn.2022-12.cdac.acts.hpcsa.sbm:disk1/tpg1/luns
+> create /backstores/block/block1
+> exit
+# systemctl restart rtslib-fb-targetctl
+# systemctl status rtslib-fb-targetctl
+
+---------------------------------------------------------------
+if its VM is centos
+# systemctl restart target
+# systemctl status target
+*****On iscsi-client-Dekstop*****
+-------------------------
+#iscsiadm -m discovery -t sendtargets -p 192.168.82.191:3260 --login           -->  #X=ISCSI SERVER VM IP
+# fdisk -l
+# fdisk /dev/sdx                                                       --> #use X=iscsi mount disk
+# #Press :n then enter entersystemc        
+#Press key :w
+# fdisk -l
+# mkdir /mnt/disk-1
+# mkfs.xfs -f /dev/sdx     or  # mkfs.ext4 /dev/sdx
+# mount /dev/sdx /mnt/disk-1/
+# df -Th
+
+Other commands on Client
+iscsiadm -m session 
+iscsiadm -m session  -P 1
+iscsiadm -m node --logoutall=all
+
+-----------------------------------------------------------------------------------------------------------------------
+
+
+  
+  root@hpcsa:~# targetcli
+targetcli shell version 2.1.53
+Copyright 2011-2013 by Datera, Inc and others.
+For help on commands, type 'help'.
+
+/> ls
+o- / ............................................................................................................... [...]
+  o- backstores .................................................................................................... [...]
+  | o- block ........................................................................................ [Storage Objects: 1]
+  | | o- iscsi_lv ................................................. [/dev/vg_iscsi/lv_iscsi (2.0GiB) write-thru activated]
+  | |   o- alua ......................................................................................... [ALUA Groups: 1]
+  | |     o- default_tg_pt_gp ............................................................. [ALUA state: Active/optimized]
+  | o- fileio ....................................................................................... [Storage Objects: 0]
+  | o- pscsi ........................................................................................ [Storage Objects: 0]
+  | o- ramdisk ...................................................................................... [Storage Objects: 0]
+  o- iscsi .................................................................................................. [Targets: 1]
+  | o- iqn.2024-12.in.cdac.acts.hpcsa.sbm:disk1 ................................................................ [TPGs: 1]
+  |   o- tpg1 ..................................................................................... [no-gen-acls, no-auth]
+  |     o- acls ................................................................................................ [ACLs: 1]
+  |     | o- iqn.1993-08.org.debian:01:84104998b5d ...................................................... [Mapped LUNs: 1]
+  |     |   o- mapped_lun0 .................................................................... [lun0 block/iscsi_lv (rw)]
+  |     o- luns ................................................................................................ [LUNs: 1]
+  |     | o- lun0 ........................................... [block/iscsi_lv (/dev/vg_iscsi/lv_iscsi) (default_tg_pt_gp)]
+  |     o- portals .......................................................................................... [Portals: 1]
+  |       o- 0.0.0.0:3260 ........................................................................................... [OK]
+  o- loopback ............................................................................................... [Targets: 0]
+  o- vhost .................................................................................................. [Targets: 0]
+  o- xen-pvscsi ............................................................................................. [Targets: 0]
+/> 
+
+
+176  cat /etc/iscsi/initiatorname.iscsi 
+  177  clear
+  178 iscsiadm -m discovery -t sendtargets -p 192.168.82.191:3260 --login
+  179  lsblk 
+  180  mkfs.ext4 /dev/sdc
+  181  mkdir /mnt/iscsi_lv_disk01
+  182  mount /dev/sdc /mnt/iscsi_lv_disk01/
+  183  df -h
+  184  clear
+  185  iscsiadm -m session
+  186  iscsiadm -m session -p1
+  187  iscsiadm -m session -p 1
+  188  iscsiadm -m session -P 1
+  189  umount /dev/sdc/umount /dev/sdc
+  190  iscsiadm -m node -T iqn.2024-12.in.cdac.acts.hpcsa.sbm:disk1 -p 192.168.82.191:3260 --logout
+  191  iscsiadm -m discovery -t sendtargets -p 192.168.82.191:3260 --login
+  192  iscsiadm -m node --logout=all
+  193  iscsiadm -m node --logoutall=all
+  194  iscsiadm -m session -P 1
+  195  iscsiadm -m session 
+  196  iscsiadm -m discovery -t sendtargets -p 192.168.82.191:3260 --login
+  197  iscsiadm -m session 
+  198  iscsiadm -m session -P 1
+  199  history 
+
+
+http://192.168.82.188/dell-unity-xt-demo.zip
+
+https://www.beegfs.io/release/beegfs_7.4.5/
+
+
+deb  https://www.beegfs.io/release/beegfs_7.4.5  bookworm non-free
+wget https://www.beegfs.io/release/beegfs_7.4.5/gpg/GPG-KEY-beegfs
+apt-key add GPG-KEY-beegfs 
+
+
+
+apt-get install linux-headers-$(uname -r)
+/etc/init.d/beegfs-client rebuild
+
+beegfs-helperd and beegfs-client 
+
+  87  hostnamectl set-hostname beegfs-mgmt-meta
+   88  exit
+   89  clear
+   90  nano /etc/apt/sources.list
+   91  clear
+   92  apt-get update
+   93  wget -qO 
+   94  wget -qO https://www.beegfs.io/release/beegfs_7.4.5/gpg/GPG-KEY-beegfs | apt-key add -
+   95  apt-get install gnupg
+   96  wget -qO https://www.beegfs.io/release/beegfs_7.4.5/gpg/GPG-KEY-beegfs | apt-key add -
+   97  wget -qo https://www.beegfs.io/release/beegfs_7.4.5/gpg/GPG-KEY-beegfs | apt-key add -
+   98  wget -q0 https://www.beegfs.io/release/beegfs_7.4.5/gpg/GPG-KEY-beegfs | apt-key add -
+   99  wget -qO https://www.beegfs.io/release/beegfs_7.4.5/gpg/GPG-KEY-beegfs | apt-key add -
+  100  wget https://www.beegfs.io/release/beegfs_7.4.5/gpg/GPG-KEY-beegfs
+  101  ls
+  102  apt-key GPG-KEY-beegfs 
+  103  apt-key add GPG-KEY-beegfs 
+  104  clear
+  105  apt-get update
+  106  #wget https://www.beegfs.io/release/beegfs_7.4.5/gpg/GPG-KEY-beegfs
+  107  #apt-key add GPG-KEY-beegfs 
+  108  lsblk 
+  109  mkfs.ext4 /dev/sdb
+  110  mkdir /mnt/sdbdisk
+  111  mount /dev/sdb /mnt/sdbdisk/
+  112  clear
+  113  df -h
+  114  apt-get install beegfs-mgmtd
+  115  dd if=/dev/random of=/etc/beegfs/connauthfile bs=128 count=1
+  116  chown root:root /etc/beegfs/connauthfile
+  117  chmod 400 /etc/beegfs/connauthfile
+  118  nano /etc/beegfs/beegfs-mgmtd.conf
+  119  nano /etc/beegfs/beegfs-mgmtd.conf
+  120  cd /opt/beegfs/
+  121  ls
+  122  cd sbin/
+  123  ls
+  124  mkdir -p /data/beegfs/beegfs_mgmtd
+  125  ./beegfs-setup-mgmtd -p /data/beegfs/beegfs_mgmtd
+  126  apt-get install -y beegfs-meta
+  127  systemctl start beegfs-mgmtd && systemctl status beegfs-mgmtd
+  128  hostname
+  129  ./beegfs-setup-meta -p /mnt/sdbdisk/ -s 1 -m beegfs-mgmt-meta -f 
+  130  systemctl start beegfs-meta && systemctl status beegfs-meta
+  131  systemctl start beegfs-meta && systemctl status beegfs-meta
+  132  systemctl status beegfs-meta
+  133  q
+  134  nano /etc/beegfs/beegfs-meta.conf 
+  135  nano /etc/beegfs/beegfs-meta.conf 
+  136  systemctl start beegfs-meta && systemctl status beegfs-meta
+  137  apt-get install net-tools
+  138  clear
+  139  netstat -atpn
+  140  cat /etc/hosts
+  141  history 
+  142  clear
+  143  cat /etc/hosts
+  144  scp /etc/beegfs/connauthfile beegfs-storage-01:/etc/beegfs/
+  145  scp /etc/beegfs/connauthfile beegfs-storage-02:/etc/beegfs/
+  146  hostname
+  147  apt-get install beegfs-mon
+  148  nano /etc/beegfs/beegfs-mon.conf 
+  149  nano /etc/beegfs/beegfs-mon.auth 
+  150  netstat -atpn
+  151  systemctl status beegfs-mon
+  152  systemctl start beegfs-mon
+  153  systemctl status beegfs-mon
+  154  nano /etc/beegfs/beegfs-mon.auth 
+  155  nano /etc/beegfs/beegfs-mon.conf 
+  156  nano /etc/beegfs/beegfs-mon.conf 
+  157  systemctl start beegfs-mon
+  158  systemctl status beegfs-mon
+  159  cd /opt/beegfs/sbin/
+  160  ls
+  161  ./beegfs-mon -h
+  162  ./beegfs-mon -H
+  163  ./beegfs-mon -h
+  164  nano /etc/beegfs/beegfs-mon.conf 
+  165  nano /etc/beegfs/beegfs-meta.conf 
+  166  nano /etc/beegfs/beegfs-mon.conf 
+  167  systemctl start beegfs-mon
+  168  systemctl status beegfs-mon
+  169  netstat -atpn
+  170  systemctl status beegfs-mon
+  171  systemctl status beegfs-mon
+  172  netstat -atpn
+  173  scp /etc/beegfs/connauthfile 192.168.82.246:/etc/beegfs/
+  174  hostname
+  175  cd /etc/beegfs/
+  176  ls
+  177  nano beegfs-mon.
+  178  nano beegfs-mon.conf 
+  179  cat beegfs-mgmtd.conf 
+  180  history 
+  
+  
+    89  apt-get install gnupg
+   90  nano /etc/apt/sources.list
+   91  wget https://www.beegfs.io/release/beegfs_7.4.5/gpg/GPG-KEY-beegfs
+   92  apt-key add GPG-KEY-beegfs 
+   93  apt-get update
+   94  apt-get install beegfs-storage
+   95  clear
+   96  lsblk 
+   97  mkfs.ext4 /dev/sdb
+   98  mkfs.ext4 /dev/sdc
+   99  clear
+  100  mkdir /mnt/raid1
+  101  mkdir /mnt/raid2
+  102  mount /dev/sdb /mnt/raid1/
+  103  mount /dev/sdb /mnt/raid2
+  104  nano /etc/beegfs/beegfs-storage.conf 
+  105  cd /opt/beegfs/sbin/
+  106  ls
+  107  ./beegfs-setup-storage -p /mnt/raid1/ -s 4 -i 401 -m beegfs-mgmt-meta
+  108  ./beegfs-setup-storage -p /mnt/raid2/ -s 4 -i 402 -m beegfs-mgmt-meta
+  109  df -h
+  110  mount /dev/sdc /mnt/raid1
+  111  df -h
+  112  ./beegfs-setup-storage -p /mnt/raid2/ -s 4 -i 402 -m beegfs-mgmt-meta
+  113  ./beegfs-setup-storage -p /mnt/raid1/ -s 4 -i 401 -m beegfs-mgmt-meta
+  114  ./beegfs-setup-storage -p /mnt/raid2/ -s 4 -i 402 -m beegfs-mgmt-meta 
+  115  ./beegfs-setup-storage -p /mnt/raid2/ -s 4 -i 402 -m beegfs-mgmt-meta
+  116  ./beegfs-setup-storage -p /mnt/raid2/ -s 4 -i 402 -m beegfs-mgmt-meta -f
+  117  df -h
+  118  systemctl start beegfs-storage && systemctl status beegfs-storage
+  119  clear
+  120  apt-cache search beegfs
+  121  systemctl status beegfs-storage
+  122  q
+  123  systemctl start  beegfs-storage
+  124  systemctl status beegfs-storage
+  125  df -h
+  126  nano /etc/beegfs/beegfs-storage.conf 
+  127  blkid 
+  128  nano /etc/beegfs/beegfs-storage.conf 
+  129  nano /etc/beegfs/beegfs-storage.conf 
+  130  nano /etc/beegfs/beegfs-storage.conf 
+  131  systemctl start  beegfs-storage
+  132  systemctl status beegfs-storage
+  133  systemctl status beegfs-storage
+  134  cat /etc/beegfs/beegfs-storage.conf 
+  135  history 
+
+
+
+  87  hostnamectl set-hostname beegfs-storage-01
+   88  exit
+   89  clear
+   90  apt-get install gnupg
+   91  clear
+   92  lsblk 
+   93  apt-get install beegfs-storage
+   94  nano /etc/apt/sources.list
+   95  wget https://www.beegfs.io/release/beegfs_7.4.5/gpg/GPG-KEY-beegfs
+   96  apt-key add GPG-KEY-beegfs 
+   97  apt-get update
+   98  clear
+   99  apt-get install beegfs-storage
+  100  clear
+  101  nano /etc/beegfs/beegfs-storage.conf 
+  102  lsblk 
+  103  mkfs.ext4 /dev/sdb
+  104  mkfs.ext4 /dev/sdc
+  105  mkdir /mnt/raid1
+  106  mkdir /mnt/raid2
+  107  mount /dev/sdb /mnt/raid1
+  108  mount /dev/sdc /mnt/raid2
+  109  clear
+  110  df -h
+  111  cd /opt/beegfs/sbin/
+  112  ls
+  113  ./beegfs-setup-storage -p /mnt/raid1/ -s 3 -i 301 -m beegfs-mgmt-meta
+  114  ./beegfs-setup-storage -p /mnt/raid2/ -s 3 -i 302 -m beegfs-mgmt-meta
+  115  clear
+  116  systemctl start beegfs-storage && systemctl status beegfs-storage
+  117  history 
+root@beegfs-storage-01:/opt/beegfs/sbin# 
+
+
+  91  nano /etc/ssh/sshd_config
+   92  systemctl restart sshd
+   93  apt-get install gnupg
+   94  clear
+   95  nano /etc/apt/sources.list
+   96  wget https://www.beegfs.io/release/beegfs_7.4.5/gpg/GPG-KEY-beegfs
+   97  apt-key add GPG-KEY-beegfs 
+   98  apt-get update
+   99  apt-get install beegfs-helperd beegfs-cleint
+  100  apt-get install beegfs-helperd beegfs-client
+  101  clear
+  102  nano /etc/beegfs/beegfs-helperd.conf 
+  103  systemctl start beegfs-helperd
+  104  systemctl status beegfs-helperd
+  105  q
+  106  nano /etc/beegfs/beegfs-helperd.conf 
+  107  ls /etc/beegfs/
+  108  systemctl start beegfs-helperd
+  109  systemctl status beegfs-helperd
+  110  clear
+  111  nano /etc/beegfs/beegfs-client.conf 
+  112  cd /opt/beegfs/sbin/
+  113  ls
+  114  ./beegfs-setup-client -m beegfs-mgmt-meta
+  115  nano /etc/beegfs/beegfs-client.conf 
+  116  systemctl status beegfs-client
+  117  systemctl start beegfs-client
+  118  systemctl status beegfs-client
+  119  q
+  120  apt-get install -y kernel-devel 
+  121  apt-get install linux-headers-$(uname -r)
+  122  halt
+  123  top
+  124  free -m
+  125  cat /proc/cpuinfo 
+  126  top
+  127  cd /etc/beegfs/
+  128  ls
+  129  nano beegfs-mounts.conf 
+  130  cat beegfs-client-mount-hook.example 
+  131  clear
+  132  top
+  133  clear
+  134  apt-get install linux-headers-$(uname -r)
+  135  dpkg --configure -a
+  136  apt-get install linux-headers-$(uname -r)
+  137  /etc/init.d/beegfs-client rebuildtasks where
+  138  systemctl start beegfs-client
+  139  systemctl status beegfs-client
+  140  q
+  141  systemctl status beegfs-helprd
+  142  systemctl status beegfs-helperd
+  143  clear
+  144  df -h
+  145  beegfs-ctl --listnodes --nodetype=client --nicdetails
+  146  apt-get install beegfs-utils
+  147  beegfs-ctl --listnodes --nodetype=client --nicdetails
+  148  beegfs-df
+  149  df -h
+  150  df -h
+  151  beegfs-df
+  152  df -h
+  153  beegfs-check-servers
+  154  beegfs-ctl --listnodes --nodetype=storage
+  155   beegfs-ctl --clientstats --names --interval=5 nodetype=storage
+  156  history 
+  157  clear
+  158  lsblk 
+  159  df -h
+  160  history 
+
+================================================================================================================
+Date: 27th Dec 24
+
+
+mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.old
+
+cat << 'EOF' > /etc/yum.repos.d/CentOS-Base.repo
+[base]
+name=CentOS-$releasever - Base
+baseurl=http://vault.centos.org/7.9.2009/os/$basearch/
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+
+[updates]
+name=CentOS-$releasever - Updates
+baseurl=http://vault.centos.org/7.9.2009/updates/$basearch/
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+
+[extras]
+name=CentOS-$releasever - Extras
+baseurl=http://vault.centos.org/7.9.2009/extras/$basearch/
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+
+[centosplus]
+name=CentOS-$releasever - Plus
+baseurl=http://vault.centos.org/7.9.2009/centosplus/$basearch/
+gpgcheck=1
+enabled=0
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+
+[contrib]
+name=CentOS-$releasever - Contrib
+baseurl=http://vault.centos.org/7.9.2009/contrib/$basearch/
+gpgcheck=1
+enabled=0
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+EOF
+
+
+
+ADD new HDD on all severs
+
+mkdir /mnt/disk1
+ 
+#format and create filesystem in disk1
+#mount /dev/sdb1 /mnt/disk1
+
+
+#nano /etc/hosts
+
+192.168.76.xxx  server1.hpcsa.com server1
+192.168.76.xxx  server2.hpcsa.com server2
+192.168.76.xxx  server3.hpcsa.com server3
+192.168.76.xxx  client.hpcsa.com client
+systemctl stop firewalld
+
+
+# yum install wget
+# yum install centos-release-gluster -y
+# yum install epel-release -y
+# yum install glusterfs-server -y
+
+# systemctl start glusterd
+# systemctl enable glusterd
+
+gluster peer probe server2.example.com
+gluster peer probe server3.example.com
+
+gluster peer status
+gluster pool list
+
+mkdir /mnt/disk1/diskvol
+
+gluster volume create gdisk1 replica 3 server2.hpcsa.com:/mnt/disk1/diskvol/gdisk1  server2.example.com:/mnt/disk1/distvol/gdisk1  server3.example.com:/mnt/disk1/distvol/gdisk1
+gluster volume start gdisk1
+
+gluster volume info gdisk1
+
+#on client 
+yum install glusterfs-fuse
+
+mkdir /mnt/gdrive
+mount -t glusterfs server1:/gdisk1 /mnt/gdrive
+
+
+
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+28-12-2024
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+http://192.168.82.230/Debian.zip
+
+
+username- cdac
+password - cdac
+
+root password - cdac
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+GlusterFS Setup Instructions
+
+
+Step 1: Create Virtual Machines and Configure Hard Disks
+Create four virtual machines:
+Specification For Servers (3 VM):
+    1 cpu, 1 GB Memory, 1 extra HDD
+Specification For client (1 VM):
+    1 cpu, 1 GB Memory
+    
+All Machine Should be in same network
+
+
+Three as storage nodes (server1, server2, server3). One as a client (client).
+Attach an additional hard disk to server1, server2, and server3.
+
+Configure the new hard disk on each storage node:
+
+# Create a mount point for the new HDD
+
+# Format and create a filesystem on the new disk (adjust the disk path if needed)
+mkfs.ext4 /dev/sdb
+
+# Mount the disk
+mount /dev/sdb /mnt/disk1
+
+# Persist the mount by adding it to /etc/fstab
+echo "/dev/sdb /mnt/disk1 ext4 defaults 0 0" >> /etc/fstab
+
+
+
+
+Step 2: Update the /etc/hosts File
+On each machine, update the /etc/hosts file with the following entries (replace xxx with the actual IP addresses):
+192.168.76.xxx  server1.hpcsa.com server1
+192.168.76.xxx  server2.hpcsa.com server2
+192.168.76.xxx  server3.hpcsa.com server3
+192.168.76.xxx  client.hpcsa.com client
+Save the file and exit.
+
+
+Step 3: Install and Configure GlusterFS on Storage Nodes
+Install GlusterFS server on all storage nodes (server1, server2, server3):
+apt update
+apt install -y glusterfs-server
+Start and enable the GlusterFS service:
+systemctl start glusterd && systemctl enable glusterd
+On server1, add the other storage nodes to the GlusterFS trusted pool:
+
+
+gluster peer probe server2.hpcsa.com
+gluster peer probe server3.hpcsa.com
+
+
+Verify the trusted pool:
+gluster peer status
+gluster pool list
+
+
+Step 4: Configure the GlusterFS Volume
+On all storage nodes (server1, server2, server3), create the directory for the Gluster volume:
+mkdir -p /mnt/disk1/diskvol
+
+
+
+On server1, create and start the GlusterFS volume:
+gluster volume create gdisk1 replica 3 \
+  server1:/mnt/disk1/diskvol/gdisk1 \
+  server2:/mnt/disk1/diskvol/gdisk1 \
+  server3:/mnt/disk1/diskvol/gdisk1
+gluster volume start gdisk1
+View the GlusterFS volume information:
+gluster volume info gdisk1
+
+Step 5: Configure the Client Machine
+Install the GlusterFS client:
+
+
+apt update
+apt install -y glusterfs-client
+Create a mount point and mount the GlusterFS volume:
+
+
+mkdir -p /mnt/gdrive
+mount -t glusterfs server1:/gdisk1 /mnt/gdrive
+
+Verify the mount:
+df -h /mnt/gdrive
+
+
+(Optional) Add the GlusterFS volume to /etc/fstab for automatic mounting:
+echo "server1:/gdisk1 /mnt/gdrive glusterfs defaults,_netdev 0 0" >> /etc/fstab
+
+
+Step 6: Test the Configuration
+
+On the client, create files or directories in /mnt/gdrive and verify that the changes are replicated across the storage nodes (server1, server2, server3).
+
+
+dd if=/dev/zero of=1GB-file bs=1MB count=1024
+
+******************PVFS LAB**************************
+
+
+Steps Recording:
+http://192.168.82.230/OrangeFS.zip
+
+VM Image URL:
+http://192.168.82.230/CENTSOS8.zip
+
+username: root
+password: cdac
+
+Create Two CentOS Server 8 From Shared Image
+
+Server:
+
+Add extra HDD.
+Set hostname: ofs-srv-1.
+Client:
+
+Set hostname: ofs-client-1.
+Hosts File Entry for All Servers/Clients
+
+
+192.168.1.x ofs-srv-1
+192.168.1.x ofs-client-1
+(Replace 192.168.1.x with the actual IP addresses assigned to each server.)
+
+
+------------------------------------------------------------------------
+                                 Server
+------------------------------------------------------------------------
+cd /etc/yum.repos.d/ &&  sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* && sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-* && systemctl stop firewalld && systemctl disable firewalld
+yum install -y nano
+yum -y install epel-release
+nano /etc/selinux/config 
+#disable it
+rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
+
+echo "[elrepo]
+name=ELRepo.org Community Enterprise Linux Repository - el8
+baseurl=http://elrepo.org/linux/elrepo/el8/\$basearch/
+enabled=1
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-elrepo.org
+
+[elrepo-kernel]
+name=ELRepo.org Community Enterprise Linux Kernel Repository - el8
+baseurl=http://elrepo.org/linux/kernel/el8/\$basearch/
+enabled=1
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-elrepo.org" | sudo tee /etc/yum.repos.d/elrepo.repo
+
+yum -y --enablerepo=elrepo-kernel install kernel-ml
+reboot
+yum -y install orangefs orangefs-server
+mkdir /mnt/ofsmnt
+
+mkfs.ext4 /dev/nvme0n2
+
+mount -t ext4 /dev/nvme0n2 /mnt/ofsmnt/
+
+lsblk
+pvfs2-genconfig /etc/orangefs/orangefs.conf
+ 
+format and mount new hdd to desired location
+
+* Enter protocol type [Default is tcp]:
+
+* Enter port number [Default is 3334]:
+
+* Enter directory name: [Default is /var/lib/orangefs/data]: /mnt/ofsmnt
+
+* Enter directory name: [Default is /var/lib/orangefs/meta]:
+
+* Enter hostnames [Default is localhost]: ofs-srv-1
+
+* Enter yes or no [Default is yes]: y
+
+* Enter hostnames [Default is localhost]: ofs-srv-1
+
+* Would you like to verify server list (y/n) [Default is n]? y
+
+****** I/O servers:
+ofs-srv-1
+
+****** Metadata servers:
+ofs-srv-1
+
+* Does this look ok (y/n) [Default is y]? y
+
+Writing fs config file... done
+
+pvfs2-server -f /etc/orangefs/orangefs.conf
+
+nano /etc/pvfs2tab
+tcp://ofs-srv-1:3334/orangefs /mnt/ofsmnt pvfs2
+systemctl enable orangefs-server  && systemctl start orangefs-server && systemctl status orangefs-server
+pvfs2-ping -m /mnt/ofsmnt
+
+
+---------------------------------------------------
+                     Client
+---------------------------------------------------
+cd /etc/yum.repos.d/ &&  sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* && sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-* && systemctl stop firewalld && systemctl disable firewalld
+yum install -y nano
+yum -y install epel-release
+rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
+
+echo "[elrepo]
+name=ELRepo.org Community Enterprise Linux Repository - el8
+baseurl=http://elrepo.org/linux/elrepo/el8/\$basearch/
+enabled=1
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-elrepo.org
+
+[elrepo-kernel]
+name=ELRepo.org Community Enterprise Linux Kernel Repository - el8
+baseurl=http://elrepo.org/linux/kernel/el8/\$basearch/
+enabled=1
+gpgcheck=1
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-elrepo.org" | sudo tee /etc/yum.repos.d/elrepo.repo
+
+yum -y --enablerepo=elrepo-kernel install kernel-ml
+reboot
+yum -y install orangefs orangefs-fuse
+modprobe orangefs
+mkdir /mnt/ofsmnt
+nano /etc/pvfs2tab
+tcp://ofs-srv-1:3334/orangefs /mnt/ofsmnt pvfs2
+pvfs2-ping -m /mnt/ofsmnt
+pvfs2-ping -m /mnt/ofsmnt
+pvfs2fuse /mnt/ofsmnt/ -o fs_spec=tcp://ofs-srv-1:3334/orangefs
+df -h
+cd /mnt/ofsmnt
+
+dd if=/dev/zero of=1GB-file bs=1MB count=1024
+
+
+
+****************************LUSTERFS LAB******************************
+
+echo "192.168.230.xxx  node1" | sudo tee -a /etc/hosts
+echo "192.168.230.xxx node2" | sudo tee -a /etc/hosts
+echo "192.168.230.xxx node3" | sudo tee -a /etc/hosts
+echo "192.168.230.xxx client" | sudo tee -a /etc/hosts
+
+
+
+
+-----------------------------------------------------------------------------------------------------------------
+                                                           server
+-----------------------------------------------------------------------------------------------------------------
+
+
+META SERVER
+
+cd /etc/yum.repos.d/ &&  sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* && sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-* && systemctl stop firewalld && systemctl disable firewalld
+yum install -y nano
+dnf config-manager --set-enabled powertools
+dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+dnf install https://zfsonlinux.org/epel/zfs-release-2-3$(rpm --eval "%{dist}").noarch.rpm
+ndnf install kernel-headers kernel-devel
+dnf upgrade kernel
+reboot
+dnf install zfs
+modprobe -v zfs
+
+echo "[lustre-server]
+name=lustre-server
+baseurl=https://downloads.whamcloud.com/public/lustre/lustre-2.15.4/el8.9/server/
+exclude=*debuginfo*
+enabled=1
+gpgcheck=0" | sudo tee /etc/yum.repos.d/lustre.repo
+
+dnf install -y lustre-dkms lustre-osd-zfs-mount lustre kmod-lustre
+modprobe -v lustre
+lsmod | grep lustre
+lsblk
+parted /dev/nvme0n2 mklabel gpt
+parted -a optimal /dev/nvme0n2 mkpart primary 0% 100%
+zpool create mds_pool /dev/nvme0n2p1
+zfs create mds_pool/mdt0
+zfs set atime=off mds_pool/mdt0
+zpool list
+umount /mds_pool/mdt0
+umount /mds_pool
+mkfs.lustre --reformat --mdt --fsname=lustrefs --mgs --index=0 --backfstype=zfs mds_pool/mdt0
+mkdir /mnt/mdt0/
+mount -t lustre mds_pool/mdt0 /mnt/mdt0
+lctl dl
+lctl get_param -n health_check
+nano /etc/modprobe.d/lnet.conf
+#add-  options lnet networks="tcp0(ens160)"
+modprobe lnet
+lsmod | grep lnet
+lctl network up
+lctl ping <MGS-SERVER-IP>@tcp0
+
+
+
+OST SERVER-1
+
+cd /etc/yum.repos.d/ &&  sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* && sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-* && systemctl stop firewalld && systemctl disable firewalld
+yum install -y nano
+dnf config-manager --set-enabled powertools
+dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+dnf install https://zfsonlinux.org/epel/zfs-release-2-3$(rpm --eval "%{dist}").noarch.rpm
+nano /etc/selinux/config
+dnf install kernel-headers kernel-devel
+dnf upgrade kernel
+reboot
+dnf install zfs
+modprobe -v zfs
+
+echo "[lustre-server]
+name=lustre-server
+baseurl=https://downloads.whamcloud.com/public/lustre/lustre-2.15.4/el8.9/server/
+exclude=*debuginfo*
+enabled=1
+gpgcheck=0" | sudo tee /etc/yum.repos.d/lustre.repo
+
+dnf install -y lustre-dkms lustre-osd-zfs-mount lustre kmod-lustre
+modprobe -v lustre
+lsmod | grep lustre
+lsblk
+parted /dev/nvme0n3 mklabel gpt
+parted -a optimal /dev/nvme0n3 mkpart primary 0% 100%
+zpool create ost_pool1 /dev/nvme0n3p1
+zfs create ost_pool1/ost0
+zfs set atime=off ost_pool1/ost0
+umount ost_pool1/ost0
+umount ost_pool1
+mkfs.lustre --ost --fsname=lustrefs --mgsnode=<MGS SERVER IP>@tcp --index=0 --backfstype=zfs ost_pool1/ost0
+mkdir -p /mnt/ost0
+mount -t lustre ost_pool1/ost0 /mnt/ost0
+lctl dl
+
+OST-SERVER-2
+
+cd /etc/yum.repos.d/ &&  sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* && sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-* && systemctl stop firewalld && systemctl disable firewalld
+yum install -y nano
+dnf config-manager --set-enabled powertools
+dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+dnf install https://zfsonlinux.org/epel/zfs-release-2-3$(rpm --eval "%{dist}").noarch.rpm
+nano /etc/selinux/config
+dnf install kernel-headers kernel-devel
+dnf upgrade kernel
+reboot
+dnf install zfs
+modprobe -v zfs
+echo "[lustre-server]
+name=lustre-server
+baseurl=https://downloads.whamcloud.com/public/lustre/lustre-2.15.4/el8.9/server/
+exclude=*debuginfo*
+enabled=1
+gpgcheck=0" | sudo tee /etc/yum.repos.d/lustre.repo
+
+dnf install -y lustre-dkms lustre-osd-zfs-mount lustre kmod-lustre
+modprobe -v lustre
+lsmod | grep lustre
+lsblk
+parted /dev/nvme0n2 mklabel gpt
+parted -a optimal /dev/nvme0n2 mkpart primary 0% 100%
+zpool create ost_pool1 /dev/nvme0n2p1
+zfs create ost_pool1/ost1
+zfs set atime=off ost_pool1/ost1
+umount ost_pool1/ost1
+umount ost_pool1
+mkfs.lustre --ost --fsname=lustrefs --mgsnode=<MGS SERVER IP>@tcp --index=1 --backfstype=zfs ost_pool1/ost0
+mkdir -p /mnt/ost0
+mount -t lustre ost_pool1/ost0 /mnt/ost0
+----------------------
+
+
+------------------------------------------------------------------------------------
+                                               Client
+-------------------------------------------------------------------------------------
+
+cd /etc/yum.repos.d/ &&  sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* && sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-* && systemctl stop firewalld && systemctl disable firewalld
+yum install -y nano
+dnf config-manager --set-enabled powertools
+dnf install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
+nano /etc/selinux/config
+dnf install kernel-headers kernel-devel
+dnf upgrade kernel
+reboot
+echo "[lustre-client]
+name=lustre-client
+baseurl=https://downloads.whamcloud.com/public/lustre/lustre-2.15.4/el8.9/client/
+exclude=*debuginfo*
+enabled=1
+gpgcheck=0" | sudo tee /etc/yum.repos.d/lustre.repo
+
+dnf install -y lustre-client lustre-client-dkms kmod-lustre-client
+modprobe lustre
+nano /etc/modprobe.d/lnet.conf
+#add-  options lnet networks="tcp0(ens33)"
+modprobe lnet
+lsmod | grep lnet
+lctl network up
+lctl ping <MGS-SERVER>@tcp0
+lsmod | grep lustre
+mkdir /mnt/lustre
+mount -t lustre <MGS-SERVER>@tcp0:/lustrefs /mnt/lustre 
+lctl dl
+lfs check servers
+lfs osts
